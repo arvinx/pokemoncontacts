@@ -1,7 +1,6 @@
 package com.pokemoncontacts;
 
 import java.io.ByteArrayOutputStream;
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -19,43 +18,62 @@ import android.util.Log;
 
 
 public class ContactManager {
-	
-	static Context context;
-	
-	public static void readContactsAndSetPhotos()
-    {
-    	Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
-    			null, ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1",
-    			null, ContactsContract.Contacts.DISPLAY_NAME);
-    	String prevName = null;
-    	String name = null;
-    	while (cursor.moveToNext()) {
-    		prevName = name;
-    		name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-    		//String hasnum = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-    		//String group = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.IN_VISIBLE_GROUP));
-    	
-    		String rawId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
 
-    		//String dataVersion = cursor.getString(0); //data_version
-    		if (!name.equals(prevName)) {
-    			Log.d("xContactName:", name + "   " + rawId);
-    			Double randint = Math.ceil(Math.random()*151);
-    			String image = randint.toString();
-    			Log.d("randint", image);
-    			int index = image.indexOf(".");
-    			image = image.substring(0, index);
-    			Log.d("randint", image + " @ " + index);
-    			Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + image + ".png");
-    			Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
-    			setContactPicture(rawId, bitmap, rawContactUri);
-    		}
-    		
-    	}
-    	
-    }
-    
-    public static void setContactPicture(String ID, Bitmap picture, Uri rawContactUri1){
+	static Context context;
+	private static ContactPhotoChangedNotification observer;
+
+	public static void setObserver(ContactPhotoChangedNotification obj) {
+		observer = obj;
+	}
+
+	public static void readContactsAndSetPhotos()
+	{
+		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
+				null, ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1",
+				null, ContactsContract.Contacts.DISPLAY_NAME);
+		String prevName = null;
+		String name = null;
+		Integer contactNumber = 0;
+		while (cursor.moveToNext()) {
+			prevName = name;
+			name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+			//String hasnum = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+			//String group = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.IN_VISIBLE_GROUP));
+
+			String rawId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
+
+			//String dataVersion = cursor.getString(0); //data_version
+			//if (!name.equals(prevName)) {
+				observer.contactUpdated(contactNumber);
+				Log.d("xContactName:", name + "   " + rawId);
+
+				Double randint = Math.ceil(Math.random()*151);
+				String image = randint.toString();
+				Log.d("randint", image);
+				int index = image.indexOf(".");
+				image = image.substring(0, index);
+				Log.d("randint", image + " @ " + index);
+
+				Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + image + ".png");
+				Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
+				setContactPicture(rawId, bitmap, rawContactUri);
+
+				contactNumber++;
+			//}
+
+		}
+
+	}
+
+	public static Integer getNumberOfContacts() {
+
+		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
+				null, ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1",
+				null, ContactsContract.Contacts.DISPLAY_NAME);
+		return cursor.getCount();
+	}
+	
+	public static void setContactPicture(String ID, Bitmap picture, Uri rawContactUri1){
 		ContentResolver cr = context.getContentResolver();
 		Uri rawContactUri = getPicture(context, ID);
 		if(rawContactUri == null){
@@ -95,8 +113,8 @@ public class ContactManager {
 			dIOe.printStackTrace();
 		}
 	} 
-    
-    public static Uri getPicture(Context context, String ID){
+
+	public static Uri getPicture(Context context, String ID){
 		ContentResolver cr = context.getContentResolver();
 		Uri rawContactUri = null;
 		Cursor rawContactCursor =  cr.query(RawContacts.CONTENT_URI, new String[] {RawContacts._ID}, RawContacts.CONTACT_ID + " = " + ID, null, null);
@@ -108,7 +126,7 @@ public class ContactManager {
 
 		return rawContactUri;
 	}
-    
+
 	public static byte[] bitmapToByteArray(Bitmap bitmap){
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
 		bitmap.compress(CompressFormat.PNG, 0, baos); 
