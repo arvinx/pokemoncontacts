@@ -6,12 +6,12 @@
     <string name="hello_world">Randomly choose pokemon for each contact or do a custom selection</string>
     <string name="button_random">Random</string>
     <string name="button_custom">Custom</string>
-    
     <string name="selectGenerationView_options">Select which generation of Pokemon you want to include</string>
-    <string name="option_g1">Red and Blue</string> 
-  	<string name="option_g2">Gold and Silver</string>
-  	<string name="option_g3">Ruby and Sapphire</string>
-  	<string name="option_g4">Diamond and Pearl</string>
-  	<string name="option_g5">Black and White</string>
+    <string name="option_g1">Red and Blue</string>
+    <string name="option_g2">Gold and Silver</string>
+    <string name="option_g3">Ruby and Sapphire</string>
+    <string name="option_g4">Diamond and Pearl</string>
+    <string name="option_g5">Black and White</string>
+    <string name="title_activity_contacts_list">ContactsList</string>
 
 </resources>

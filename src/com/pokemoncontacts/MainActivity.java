@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 
 
 
@@ -23,20 +26,24 @@ public class MainActivity extends Activity {
 
 	public void actionRandomGenerate(View view) 
 	{
-		view = (View) view.getParent();
-		//TextView editText = (TextView) findViewById(R.id.textView1);
-		//    	LinearLayout generationOptions = (LinearLayout) findViewById(R.id.selectGenerationView);
-		//    	
-		//    	ObjectAnimator fadeIn = ObjectAnimator.ofFloat(generationOptions, "alpha", 0f, 1f);
-		//    	ObjectAnimator mover = ObjectAnimator.ofFloat(generationOptions, "translationY", -200, 0);
-		//    	AnimatorSet animatorSet = new AnimatorSet();
-		//    	animatorSet.play(mover).with(fadeIn);
-		//    	animatorSet.start();
+		view = (View) view.getParent().getParent();
 
-		new UpdateContacts().execute("");
+		POKEMON_GENERATION [] generationsSelected = new POKEMON_GENERATION [5];
+		LinearLayout options = (LinearLayout) view.findViewById(R.id.selectGenerationView);
+		generationsSelected[0] = ((CheckBox)options.findViewById(R.id.checkBoxG1)).isChecked() ? POKEMON_GENERATION.GENERATION_1 : null;
+		generationsSelected[1] = ((CheckBox)options.findViewById(R.id.checkBoxG2)).isChecked() ? POKEMON_GENERATION.GENERATION_2 : null;
+		generationsSelected[2] = ((CheckBox)options.findViewById(R.id.checkBoxG3)).isChecked() ? POKEMON_GENERATION.GENERATION_3 : null;
+		generationsSelected[3] = ((CheckBox)options.findViewById(R.id.checkBoxG4)).isChecked() ? POKEMON_GENERATION.GENERATION_4 : null;
+		generationsSelected[4] = ((CheckBox)options.findViewById(R.id.checkBoxG5)).isChecked() ? POKEMON_GENERATION.GENERATION_5 : null;
+		new UpdateContacts().execute(generationsSelected);
+	}
+	
+	public void actionCustom(View view) {
+		Intent intent = new Intent(this, ContactsList.class);
+		startActivity(intent);
 	}
 
-	private class UpdateContacts extends AsyncTask<String, Integer, Void> implements ContactPhotoChangedNotification {
+	private class UpdateContacts extends AsyncTask<POKEMON_GENERATION, Integer, Void> implements ContactPhotoChangedNotification {
 
 		private Integer numberOfContacts = ContactManager.getNumberOfContacts() - 190;
 		@Override
@@ -48,15 +55,14 @@ public class MainActivity extends Activity {
 		}
 		
 		@Override
-		protected Void doInBackground(String... arg0) {
-			ContactManager.readContactsAndSetPhotos();
+		protected Void doInBackground(POKEMON_GENERATION ... params) {
+			ContactManager.readContactsAndSetPhotos(params);
 			return null;
 		}
 		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			super.onProgressUpdate(progress);
-			// Update the ProgressBar
 			mProgressDialog.setProgress(progress[0]);
 		}
 
@@ -93,24 +99,10 @@ public class MainActivity extends Activity {
 			alertCompletion = new AlertDialog.Builder(
 			        MainActivity.this);
 			alertCompletion.setTitle("Updated Contacts Successfully");
-			alertCompletion.setPositiveButton("OK", null);
+			alertCompletion.setPositiveButton("Cool", null);
 			alertCompletion.create();
 		}
-		
+
 	}
 
 }
-//String [] columns = cursor.getColumnNames();
-//for (String columnName : columns) {
-//	String msg = cursor.getString(cursor.getColumnIndex(columnName));
-//	if (msg == null) {
-//		msg = "null";
-//	}
-//	Log.d("ContactInfo: ", columnName + "   " + msg);
-//}
-//Log.d("ContactInfo: ", "----------------------------------------------------------------------------------------");
-//i++;
-//if (i > 10) {
-//	break;
-//}
-//}
