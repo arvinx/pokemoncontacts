@@ -30,6 +30,8 @@
             </intent-filter>
         </activity>
         <activity
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" 
             android:name="com.pokemoncontacts.ContactsList"
             android:label="@string/title_activity_contacts_list" >
         </activity>

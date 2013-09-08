@@ -29,8 +29,8 @@ public class ContactManager {
 	static final String SELECTION = "((" + 
 			ContactsContract.Data.DISPLAY_NAME + " NOTNULL) AND (" +
 			ContactsContract.Data.DISPLAY_NAME + " != '' ) AND (" +
-					ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1))";
-	
+			ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1))";
+
 	public static void setObserver(ContactPhotoChangedNotification obj) {
 		observer = obj;
 	}
@@ -50,38 +50,59 @@ public class ContactManager {
 			//String group = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.IN_VISIBLE_GROUP));
 
 			String rawId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
-			
-			String [] columns = cursor.getColumnNames();
-			for (String columnName : columns) {
-				String msg = cursor.getString(cursor.getColumnIndex(columnName));
-				if (msg == null) {
-					msg = "null";
-				}
-				if (name.equals("temp")) {
-					Log.d("ContactInfo: ", columnName + "   " + msg);
-				}
-			}
-			Log.d("ContactInfo: ", "----------------------------------------------------------------------------------------");
-			
-			
+			//			
+			//			String [] columns = cursor.getColumnNames();
+			//			for (String columnName : columns) {
+			//				String msg = cursor.getString(cursor.getColumnIndex(columnName));
+			//				if (msg == null) {
+			//					msg = "null";
+			//				}
+			//				if (name.equals("temp")) {
+			//					Log.d("ContactInfo: ", columnName + "   " + msg);
+			//				}
+			//			}
+			//			Log.d("ContactInfo: ", "----------------------------------------------------------------------------------------");
+
+
 			//String dataVersion = cursor.getString(0); //data_version
 			//if (!name.equals(prevName)) {
-				observer.contactUpdated(contactNumber);
-				Log.d("xContactName:", name + "   " + rawId);
+			observer.contactUpdated(contactNumber);
+			Log.d("xContactName:", name + "   " + rawId);
 
-				Integer randomAppendix = POKEMON_GENERATION.getFileAppendix(generationsSelected);
-				String image = randomAppendix.toString();
-				Log.d("RANDNUM", image);
+			Integer randomAppendix = POKEMON_GENERATION.getFileAppendix(generationsSelected);
+			String image = randomAppendix.toString();
+			Log.d("RANDNUM", image);
 
-//				Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + image + ".png");
-//				Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
-//				setContactPicture(rawId, bitmap, rawContactUri);
+			Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + image + ".png");
+			Bitmap centeredBitmap = centerBitmap(bitmap);
+			Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
+			setContactPicture(rawId, centeredBitmap, rawContactUri);
 
-				contactNumber++;
+			contactNumber++;
 			//}
 
 		}
 
+	}
+
+	private static Bitmap centerBitmap(Bitmap bitmap) {
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+		Bitmap newBitmap;
+		if (height > width) {
+			int offSetY = (height - width)/2;
+			int newHeight = height - offSetY*2;
+			newBitmap = Bitmap.createBitmap(bitmap, 0, offSetY, width, newHeight);
+		} else {
+			int offSetX = (width - height)/2;
+			int newWidth = width - offSetX*2;
+			if (width > 0) {
+				newBitmap = Bitmap.createBitmap(bitmap, offSetX, 0, newWidth, height);
+			} else {
+				newBitmap = bitmap;
+			}
+		}
+		return newBitmap;
 	}
 
 	public static Integer getNumberOfContacts() {
@@ -91,7 +112,7 @@ public class ContactManager {
 				null, ContactsContract.Contacts.DISPLAY_NAME);
 		return cursor.getCount();
 	}
-	
+
 	public static void setContactPicture(String ID, Bitmap picture, Uri rawContactUri1){
 		ContentResolver cr = context.getContentResolver();
 		Uri rawContactUri = getPicture(context, ID);

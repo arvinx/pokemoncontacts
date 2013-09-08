@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
 
 	private class UpdateContacts extends AsyncTask<POKEMON_GENERATION, Integer, Void> implements ContactPhotoChangedNotification {
 
-		private Integer numberOfContacts = ContactManager.getNumberOfContacts() - 190;
+		private Integer numberOfContacts = ContactManager.getNumberOfContacts() - 1;
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
