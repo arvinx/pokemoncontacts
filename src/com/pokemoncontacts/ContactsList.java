@@ -8,6 +8,7 @@ import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -19,6 +20,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 
@@ -116,5 +118,10 @@ implements LoaderManager.LoaderCallbacks<Cursor> {
 		mAdapter.swapCursor(null);
 	}
 
-
+	@Override 
+    public void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(this, ImageGrid.class);
+		startActivity(intent); 
+    }
+	
 }

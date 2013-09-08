@@ -30,10 +30,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" 
             android:name="com.pokemoncontacts.ContactsList"
-            android:label="@string/title_activity_contacts_list" >
+            android:configChanges="orientation"
+            android:label="@string/title_activity_contacts_list"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.pokemoncontacts.ImageGrid"
+            android:label="@string/title_activity_image_grid"
+            android:parentActivityName="com.pokemoncontacts.ContactsList" 
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.pokemoncontacts.ContactsList" />
         </activity>
     </application>
 

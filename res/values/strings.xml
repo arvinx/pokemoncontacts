@@ -13,5 +13,6 @@
     <string name="option_g4">Diamond and Pearl</string>
     <string name="option_g5">Black and White</string>
     <string name="title_activity_contacts_list">ContactsList</string>
+    <string name="title_activity_image_grid">ImageGrid</string>
 
 </resources>
