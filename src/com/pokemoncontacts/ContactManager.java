@@ -77,8 +77,8 @@ public class ContactManager {
 
 			Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + image + ".png");
 			Bitmap centeredBitmap = centerBitmap(bitmap);
-			Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
-			//setContactPicture(rawId, centeredBitmap, rawContactUri);
+			//Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
+			setContactPicture(rawId, centeredBitmap);
 
 			contactNumber++;
 			//}
@@ -87,7 +87,7 @@ public class ContactManager {
 
 	}
 
-	private static Bitmap centerBitmap(Bitmap bitmap) {
+	public static Bitmap centerBitmap(Bitmap bitmap) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
 		Bitmap newBitmap;
@@ -115,7 +115,7 @@ public class ContactManager {
 		return cursor.getCount();
 	}
 
-	public static void setContactPicture(String ID, Bitmap picture, Uri rawContactUri1){
+	public static void setContactPicture(String ID, Bitmap picture){
 		ContentResolver cr = context.getContentResolver();
 		Uri rawContactUri = getPicture(context, ID);
 		if(rawContactUri == null){

@@ -13,7 +13,9 @@ public class PokemonCollection {
 	public static Bitmap getImage(int position) {
 		position = arrayIndex[position];
     	if (pokemonImages[position] == null) {
-    		pokemonImages[position] = BitmapFactory.decodeFile("/sdcard/Download/assets/" + (position+1) + ".png");
+    		Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + (position+1) + ".png");
+    		Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
+    		pokemonImages[position] = centeredBitmap;
     	}
     	//Log.d("PATH", Environment.getExternalStorageDirectory().getPath());
     	return pokemonImages[position];

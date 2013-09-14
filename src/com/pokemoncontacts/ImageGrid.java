@@ -1,6 +1,7 @@
 package com.pokemoncontacts;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,7 +14,6 @@ public class ImageGrid extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.activity_image_grid);
 
 		GridView gridview = (GridView) findViewById(R.id.gridview);
@@ -21,7 +21,11 @@ public class ImageGrid extends Activity {
 
 		gridview.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-				Toast.makeText(ImageGrid.this, "" + position, Toast.LENGTH_SHORT).show();
+				Intent intent = getIntent();
+				String ID = intent.getStringExtra("ID");
+				Toast.makeText(ImageGrid.this, "Image Set", Toast.LENGTH_SHORT).show();
+				ContactManager.setContactPicture(ID, PokemonCollection.getImage(position));
+				finish();
 			}
 		});
 	}
