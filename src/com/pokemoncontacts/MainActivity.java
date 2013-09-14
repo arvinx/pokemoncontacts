@@ -1,16 +1,13 @@
 package com.pokemoncontacts;
 
-import java.io.Serializable;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
@@ -23,23 +20,43 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 		ContactManager.context = this;
 	}
 
 	public void actionRandomGenerate(View view) 
 	{
-		setSelectedGenerations(view);
-		new UpdateContacts().execute();
+		boolean valid = setSelectedGenerations(view);
+		if (valid) {
+			new UpdateContacts().execute();
+		} else {
+			showOptionsError();
+		}
 	}
 	
 	public void actionCustom(View view) {
-		setSelectedGenerations(view);
-		Intent intent = new Intent(this, ContactsList.class);
-		startActivity(intent);
+//		InputStream is;
+//		try {
+//			is = getAssets().open("kinsei01_pokeball-wall-paper.png");
+//			Bitmap image = BitmapFactory.decodeStream(is);
+//
+//			
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			Log.e("Error Image Load", "could not open");
+//			e.printStackTrace();
+//		}
+		boolean valid = setSelectedGenerations(view);
+		if (valid) {
+			Intent intent = new Intent(this, ContactsList.class);
+			startActivity(intent);
+		} else {
+			showOptionsError();
+		}
 	}
 	
-	private void setSelectedGenerations(View view) {
+	private boolean setSelectedGenerations(View view) {
 		view = (View) view.getParent().getParent();
 		LinearLayout options = (LinearLayout) view.findViewById(R.id.selectGenerationView);
 		PokemonCollection.generationsSelected[0] = ((CheckBox)options.findViewById(R.id.checkBoxG1)).isChecked() ? POKEMON_GENERATION.GENERATION_1 : null;
@@ -47,6 +64,20 @@ public class MainActivity extends Activity {
 		PokemonCollection.generationsSelected[2] = ((CheckBox)options.findViewById(R.id.checkBoxG3)).isChecked() ? POKEMON_GENERATION.GENERATION_3 : null;
 		PokemonCollection.generationsSelected[3] = ((CheckBox)options.findViewById(R.id.checkBoxG4)).isChecked() ? POKEMON_GENERATION.GENERATION_4 : null;
 		PokemonCollection.generationsSelected[4] = ((CheckBox)options.findViewById(R.id.checkBoxG5)).isChecked() ? POKEMON_GENERATION.GENERATION_5 : null;
+		for (POKEMON_GENERATION generation : PokemonCollection.generationsSelected) {
+			if (generation != null) return true;
+		}
+		return false;
+	}
+	
+	private void showOptionsError() {
+		alertCompletion = new AlertDialog.Builder(
+		        MainActivity.this);
+		alertCompletion.setTitle("Whoooops");
+		alertCompletion.setMessage("Make sure you have at least one pokemon generation selected!");
+		alertCompletion.setPositiveButton("OK", null);
+		alertCompletion.create();
+		alertCompletion.show();
 	}
 
 	private class UpdateContacts extends AsyncTask<Void, Integer, Void> implements ContactPhotoChangedNotification {

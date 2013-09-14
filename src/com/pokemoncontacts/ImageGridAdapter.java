@@ -1,7 +1,6 @@
 package com.pokemoncontacts;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -34,12 +33,11 @@ public class ImageGridAdapter extends BaseAdapter {
         if (convertView == null) {  // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
             imageView.setLayoutParams(new GridView.LayoutParams(250, 250));
-        	Log.d("ImageViewGrid", "view width" + imageView.getWidth());
             imageView.setPadding(8, 8, 8, 8);
         } else {
             imageView = (ImageView) convertView;
         }
-        imageView.setImageBitmap(PokemonCollection.getImage(position));
+        imageView.setImageBitmap(PokemonCollection.getImage(position, mContext));
         return imageView;
     }
 

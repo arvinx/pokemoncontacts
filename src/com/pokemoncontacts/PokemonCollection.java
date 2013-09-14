@@ -1,5 +1,9 @@
 package com.pokemoncontacts;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -10,14 +14,23 @@ public class PokemonCollection {
 	private static int [] arrayIndex;
 	public static POKEMON_GENERATION [] generationsSelected = new POKEMON_GENERATION [5];
 	
-	public static Bitmap getImage(int position) {
+	public static Bitmap getImage(int position, Context context) {
 		position = arrayIndex[position];
     	if (pokemonImages[position] == null) {
-    		Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + (position+1) + ".png");
-    		Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
-    		pokemonImages[position] = centeredBitmap;
+//    		Bitmap bitmap = BitmapFactory.decodeFile(Constants.IMAGES_ICON + (position+1) + ".png");
+			InputStream is;
+			try {
+				is = context.getAssets().open(Constants.IMAGES_ICON + (position+1) + ".png");
+				Bitmap bitmap = BitmapFactory.decodeStream(is);
+	    		Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
+	    		pokemonImages[position] = centeredBitmap;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				Log.e("Error Image Load", "could not open");
+				e.printStackTrace();
+			}
     	}
-    	//Log.d("PATH", Environment.getExternalStorageDirectory().getPath());
+    	
     	return pokemonImages[position];
 	}
 	

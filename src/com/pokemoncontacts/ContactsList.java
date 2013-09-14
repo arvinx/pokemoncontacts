@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -21,6 +21,9 @@ public class ContactsList extends ListActivity {
 	private ContactListAdapter adapter;
 	static final String[] PROJECTION = new String[] {ContactsContract.Data.CONTACT_ID,
 		ContactsContract.Data.DISPLAY_NAME, ContactsContract.Data.PHOTO_THUMBNAIL_URI};
+	static final String[] PROJECTION_PROFILE = new String[] {ContactsContract.Contacts._ID,
+		ContactsContract.Data.DISPLAY_NAME, 
+		ContactsContract.Data.PHOTO_THUMBNAIL_URI};
 	static final String SELECTION = "((" + 
 			ContactsContract.Data.DISPLAY_NAME + " NOTNULL) AND (" +
 			ContactsContract.Data.DISPLAY_NAME + " != '' ) AND (" +
@@ -29,7 +32,7 @@ public class ContactsList extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		ProgressBar progressBar = new ProgressBar(this);
 		progressBar.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT, Gravity.CENTER));
@@ -54,10 +57,22 @@ public class ContactsList extends ListActivity {
 
 
 	private void setArrayListContacts() {
+		String name = null;
+		Cursor cursorProfile = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI,
+				PROJECTION_PROFILE, null, null, null);
+		
+		while(cursorProfile.moveToNext()) {
+			name = cursorProfile.getString(cursorProfile.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+			String ID = cursorProfile.getString(cursorProfile.getColumnIndex(ContactsContract.Contacts._ID));
+			String photoThumbnailUri = cursorProfile.getString(cursorProfile.getColumnIndex(ContactsContract.Data.PHOTO_THUMBNAIL_URI));
+			contacts.add(new Contact(name, photoThumbnailUri, ID));
+		}
+		cursorProfile.close();
+		
 		Cursor cursor = this.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
+		name = null;
 		String prevName = null;
-		String name = null;
 		while (cursor.moveToNext()) {
 			prevName = name;
 			name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -65,17 +80,19 @@ public class ContactsList extends ListActivity {
 			String photoThumbnailUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.PHOTO_THUMBNAIL_URI));
 			if (!name.equals(prevName)) {
 				contacts.add(new Contact(name, photoThumbnailUri, ID));
-				Log.d("Arvin", "contact added " + name);
 			}
 		}
 		cursor.close();
+		
 	}
-
+	
 	@Override 
     public void onListItemClick(ListView l, View v, int position, long id) {
 		Intent intent = new Intent(this, ImageGrid.class);
 		String ID = contacts.get(position).ID;
 		intent.putExtra("ID", ID);
+		boolean isPersonalProfile = position == 0 ? true : false;
+		intent.putExtra(Constants.IS_PERSONAL_PROFILE, isPersonalProfile);
 		startActivity(intent); 
     }
 	

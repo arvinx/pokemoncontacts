@@ -2,10 +2,12 @@ package com.pokemoncontacts;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -33,7 +35,6 @@ public class ContactListAdapter extends ArrayAdapter<Contact> {
 		if (convertView == null) {
 			convertView = inflater.inflate(R.layout.activity_contacts_list, parent, false);
 		}
-		Log.d("Arvin", "Inflating view");
 		Contact contact = contacts.get(position);
 		TextView textView = (TextView) convertView.findViewById(R.id.contactName);
 		textView.setText(contact.displayName);
@@ -53,6 +54,22 @@ public class ContactListAdapter extends ArrayAdapter<Contact> {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		} else {
+			InputStream is;
+			try {
+				is = context.getAssets().open(Constants.IMAGES_OTHER + "ic_contact_picture.png");
+				Bitmap bmp = BitmapFactory.decodeStream(is);
+				Bitmap centeredBitmap = ContactManager.centerBitmap(bmp);
+				imageView.setImageBitmap(centeredBitmap);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				Log.e("Error Image Load", "could not open");
+				e.printStackTrace();
+			}
+			
+//			Bitmap bitmap = BitmapFactory.decodeFile(Constants.IMAGES_OTHER + );
+//			Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
+//			imageView.setImageBitmap(centeredBitmap);
 		}
 		
 		return convertView;

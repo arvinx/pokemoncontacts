@@ -5,12 +5,6 @@
     android:layout_centerHorizontal="true"
     android:layout_marginLeft="12dp"
     android:layout_marginRight="12dp" >
-    <!--  
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >	-->
 
     <TextView
         android:id="@+id/textView1"
@@ -18,33 +12,41 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="31dp"
+        android:layout_marginTop="80dp"
         android:gravity="center"
-        android:text="@string/hello_world" />
+        android:text="@string/hello_world"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="15sp" />
 
     <LinearLayout
         android:id="@+id/view_main_option"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView1"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="30dp"
         android:orientation="horizontal" >
 
         <Button
             android:id="@+id/button_random"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
             android:layout_weight="1.0"
+            android:background="@android:color/holo_blue_light"
             android:onClick="actionRandomGenerate"
-            android:text="@string/button_random" />
+            android:text="@string/button_random"
+            android:textColor="@android:color/background_light" />
 
         <Button
             android:id="@+id/button_custom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:layout_weight="1.0"
+            android:background="@android:color/holo_red_light"
+            android:onClick="actionCustom"
             android:text="@string/button_custom"
-            android:onClick="actionCustom" />
+            android:textColor="@android:color/background_light" />
     </LinearLayout>
 
     <LinearLayout
@@ -52,8 +54,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/view_main_option"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="35dp"
+        android:layout_marginTop="40dp"
         android:orientation="vertical" >
 
         <TextView
@@ -62,48 +64,60 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:gravity="center"
-            android:text="@string/selectGenerationView_options" />
+            android:text="@string/selectGenerationView_options"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="15sp" />
 
         <CheckBox
             android:id="@+id/checkBoxG1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
             android:checked="true"
             android:text="@string/option_g1"
-            android:textSize="14sp" />
+            android:textColor="@android:color/darker_gray"
+            android:textSize="15sp" />
 
         <CheckBox
             android:id="@+id/checkBoxG2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
             android:text="@string/option_g2"
-            android:textSize="14sp" />
+            android:textColor="@android:color/darker_gray"
+            android:textSize="15sp" />
 
         <CheckBox
             android:id="@+id/checkBoxG3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
             android:text="@string/option_g3"
-            android:textSize="14sp" />
+            android:textColor="@android:color/darker_gray"
+            android:textSize="15sp" />
 
         <CheckBox
             android:id="@+id/checkBoxG4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
             android:text="@string/option_g4"
-            android:textSize="14sp" />
+            android:textColor="@android:color/darker_gray"
+            android:textSize="15sp" />
 
         <CheckBox
             android:id="@+id/checkBoxG5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
             android:text="@string/option_g5"
-            android:textSize="14sp" />
+            android:textColor="@android:color/darker_gray"
+            android:textSize="15sp" />
     </LinearLayout>
 
 </RelativeLayout>

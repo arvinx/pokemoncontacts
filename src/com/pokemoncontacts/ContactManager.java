@@ -1,6 +1,8 @@
 package com.pokemoncontacts;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -41,11 +43,11 @@ public class ContactManager {
 		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
 				null, ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1",
 				null, ContactsContract.Contacts.DISPLAY_NAME);
-		String prevName = null;
+		//String prevName = null;
 		String name = null;
 		Integer contactNumber = 0;
 		while (cursor.moveToNext()) {
-			prevName = name;
+			//prevName = name;
 			name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 			//String hasnum = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 			//String group = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.IN_VISIBLE_GROUP));
@@ -63,8 +65,8 @@ public class ContactManager {
 			//				}
 			//			}
 			//			Log.d("ContactInfo: ", "----------------------------------------------------------------------------------------");
-			String datavr = cursor.getString(cursor.getColumnIndex("data_version"));
-			Log.d("Arvin", name + "  " + datavr);
+//			String datavr = cursor.getString(cursor.getColumnIndex("data_version"));
+//			Log.d("Arvin", name + "  " + datavr);
 
 			//String dataVersion = cursor.getString(0); //data_version
 			//if (!name.equals(prevName)) {
@@ -75,14 +77,23 @@ public class ContactManager {
 			String image = randomAppendix.toString();
 			Log.d("RANDNUM", image);
 
-			Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + image + ".png");
-			Bitmap centeredBitmap = centerBitmap(bitmap);
-			//Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
-			setContactPicture(rawId, centeredBitmap);
+//			Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/icons/" + image + ".png");
+//			Bitmap centeredBitmap = centerBitmap(bitmap);
+//			//Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
+//			setContactPicture(rawId, centeredBitmap, false);
 
+			InputStream is;
+			try {
+				is = context.getAssets().open(Constants.IMAGES_ICON + image + ".png");
+				Bitmap bmp = BitmapFactory.decodeStream(is);
+				Bitmap centeredBitmap = centerBitmap(bmp);
+				setContactPicture(rawId, centeredBitmap, false);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				Log.e("Error Image Load", "could not open");
+				e.printStackTrace();
+			}
 			contactNumber++;
-			//}
-
 		}
 
 	}
@@ -115,9 +126,18 @@ public class ContactManager {
 		return cursor.getCount();
 	}
 
-	public static void setContactPicture(String ID, Bitmap picture){
+	public static void setContactPicture(String ID, Bitmap picture, boolean isPersonalProfile){
+		Uri rawContactUri;
+		if (isPersonalProfile) {
+			rawContactUri = getPersonalProfilePicture(context, ID);
+		} else {
+			rawContactUri = getPicture(context, ID);
+		}
+		setContactPictureHelper(ID, picture, rawContactUri);
+	}
+
+	private static void setContactPictureHelper(String ID, Bitmap picture, Uri rawContactUri) {
 		ContentResolver cr = context.getContentResolver();
-		Uri rawContactUri = getPicture(context, ID);
 		if(rawContactUri == null){
 			Log.e("rawContactUri", "is null");
 			return;
@@ -155,7 +175,9 @@ public class ContactManager {
 			dIOe.printStackTrace();
 		}
 	} 
-
+	
+		
+	
 	public static Uri getPicture(Context context, String ID){
 		ContentResolver cr = context.getContentResolver();
 		Uri rawContactUri = null;
@@ -163,6 +185,19 @@ public class ContactManager {
 		if(!rawContactCursor.isAfterLast()) {
 			rawContactCursor.moveToFirst();
 			rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath(""+rawContactCursor.getLong(0)).build();
+		}
+		rawContactCursor.close();
+
+		return rawContactUri;
+	}
+	
+	public static Uri getPersonalProfilePicture(Context context, String ID){
+		ContentResolver cr = context.getContentResolver();
+		Uri rawContactUri = null;
+		Cursor rawContactCursor =  cr.query(ContactsContract.Profile.CONTENT_URI, new String[] {ContactsContract.Data._ID}, ContactsContract.Data._ID + " = " + ID, null, null);
+		if(!rawContactCursor.isAfterLast()) {
+			rawContactCursor.moveToFirst();
+			rawContactUri = ContactsContract.Profile.CONTENT_URI.buildUpon().appendPath(""+rawContactCursor.getLong(0)).build();
 		}
 		rawContactCursor.close();
 
