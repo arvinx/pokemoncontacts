@@ -9,10 +9,11 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 public class ImageGrid extends Activity {
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_image_grid);
 
 		GridView gridview = (GridView) findViewById(R.id.gridview);

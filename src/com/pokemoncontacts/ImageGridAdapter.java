@@ -1,9 +1,6 @@
 package com.pokemoncontacts;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +10,14 @@ import android.widget.ImageView;
 
 public class ImageGridAdapter extends BaseAdapter {
     private Context mContext;
-    private Bitmap [] pokemonImages = new Bitmap [POKEMON_GENERATION.GENERATION_5.getEnd()];
 
     public ImageGridAdapter(Context c) {
         mContext = c;
     }
 
     public int getCount() {
-        return POKEMON_GENERATION.GENERATION_5.getEnd();
+        PokemonCollection.setIndices();
+        return PokemonCollection.getTotalPokemon();
     }
 
     public Object getItem(int position) {
@@ -42,17 +39,8 @@ public class ImageGridAdapter extends BaseAdapter {
         } else {
             imageView = (ImageView) convertView;
         }
-        imageView.setImageBitmap(bitmapForPosition(position));
+        imageView.setImageBitmap(PokemonCollection.getImage(position));
         return imageView;
-    }
-
-    private Bitmap bitmapForPosition(int position) {
-    	//TODO put in memory for fast access.
-    	if (pokemonImages[position] == null) {
-    		pokemonImages[position] = BitmapFactory.decodeFile("/sdcard/Download/assets/" + (position+1) + ".png");
-    	}
-    	//Log.d("PATH", Environment.getExternalStorageDirectory().getPath());
-    	return pokemonImages[position];
     }
 
 }

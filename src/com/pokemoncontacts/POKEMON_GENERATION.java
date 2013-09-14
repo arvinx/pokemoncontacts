@@ -1,11 +1,10 @@
 package com.pokemoncontacts;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Log;
-
-public enum POKEMON_GENERATION {
+public enum POKEMON_GENERATION implements Serializable {
 	GENERATION_1 (0, 151),
 	GENERATION_2 (152, 251),
 	GENERATION_3 (252, 386),
@@ -32,16 +31,12 @@ public enum POKEMON_GENERATION {
 		return (int) (generation.getStart() + Math.ceil(Math.random()*(generation.getEnd() - generation.getStart())));
 	}
 	
-	public static Integer getFileAppendix(POKEMON_GENERATION [] generations) {
+	public static Integer getRandomFileAppendix() {
 		List<Integer> randomIndices = new ArrayList<Integer>();
-		for (POKEMON_GENERATION generation : generations) {
+		for (POKEMON_GENERATION generation : PokemonCollection.generationsSelected) {
 			if (generation != null) {
-				Log.d("Arvin Log", generation.name());
 				randomIndices.add(getIndexInGeneration(generation));
 			}
-		}
-		for (Integer i : randomIndices) {
-			Log.d("Arvin Log", i.toString());
 		}
 		int randomIndex = (int) Math.floor(Math.random()*randomIndices.size());
 		

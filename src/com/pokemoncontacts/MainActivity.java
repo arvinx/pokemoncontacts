@@ -1,5 +1,7 @@
 package com.pokemoncontacts;
 
+import java.io.Serializable;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -7,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -26,24 +29,27 @@ public class MainActivity extends Activity {
 
 	public void actionRandomGenerate(View view) 
 	{
-		view = (View) view.getParent().getParent();
-
-		POKEMON_GENERATION [] generationsSelected = new POKEMON_GENERATION [5];
-		LinearLayout options = (LinearLayout) view.findViewById(R.id.selectGenerationView);
-		generationsSelected[0] = ((CheckBox)options.findViewById(R.id.checkBoxG1)).isChecked() ? POKEMON_GENERATION.GENERATION_1 : null;
-		generationsSelected[1] = ((CheckBox)options.findViewById(R.id.checkBoxG2)).isChecked() ? POKEMON_GENERATION.GENERATION_2 : null;
-		generationsSelected[2] = ((CheckBox)options.findViewById(R.id.checkBoxG3)).isChecked() ? POKEMON_GENERATION.GENERATION_3 : null;
-		generationsSelected[3] = ((CheckBox)options.findViewById(R.id.checkBoxG4)).isChecked() ? POKEMON_GENERATION.GENERATION_4 : null;
-		generationsSelected[4] = ((CheckBox)options.findViewById(R.id.checkBoxG5)).isChecked() ? POKEMON_GENERATION.GENERATION_5 : null;
-		new UpdateContacts().execute(generationsSelected);
+		setSelectedGenerations(view);
+		new UpdateContacts().execute();
 	}
 	
 	public void actionCustom(View view) {
+		setSelectedGenerations(view);
 		Intent intent = new Intent(this, ContactsList.class);
 		startActivity(intent);
 	}
+	
+	private void setSelectedGenerations(View view) {
+		view = (View) view.getParent().getParent();
+		LinearLayout options = (LinearLayout) view.findViewById(R.id.selectGenerationView);
+		PokemonCollection.generationsSelected[0] = ((CheckBox)options.findViewById(R.id.checkBoxG1)).isChecked() ? POKEMON_GENERATION.GENERATION_1 : null;
+		PokemonCollection.generationsSelected[1] = ((CheckBox)options.findViewById(R.id.checkBoxG2)).isChecked() ? POKEMON_GENERATION.GENERATION_2 : null;
+		PokemonCollection.generationsSelected[2] = ((CheckBox)options.findViewById(R.id.checkBoxG3)).isChecked() ? POKEMON_GENERATION.GENERATION_3 : null;
+		PokemonCollection.generationsSelected[3] = ((CheckBox)options.findViewById(R.id.checkBoxG4)).isChecked() ? POKEMON_GENERATION.GENERATION_4 : null;
+		PokemonCollection.generationsSelected[4] = ((CheckBox)options.findViewById(R.id.checkBoxG5)).isChecked() ? POKEMON_GENERATION.GENERATION_5 : null;
+	}
 
-	private class UpdateContacts extends AsyncTask<POKEMON_GENERATION, Integer, Void> implements ContactPhotoChangedNotification {
+	private class UpdateContacts extends AsyncTask<Void, Integer, Void> implements ContactPhotoChangedNotification {
 
 		private Integer numberOfContacts = ContactManager.getNumberOfContacts() - 1;
 		@Override
@@ -55,8 +61,8 @@ public class MainActivity extends Activity {
 		}
 		
 		@Override
-		protected Void doInBackground(POKEMON_GENERATION ... params) {
-			ContactManager.readContactsAndSetPhotos(params);
+		protected Void doInBackground(Void ... params) {
+			ContactManager.readContactsAndSetPhotos();
 			return null;
 		}
 		
@@ -102,7 +108,6 @@ public class MainActivity extends Activity {
 			alertCompletion.setPositiveButton("Cool", null);
 			alertCompletion.create();
 		}
-
 	}
 
 }

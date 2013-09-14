@@ -1,6 +1,7 @@
 package com.pokemoncontacts;
 
 import java.io.ByteArrayOutputStream;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -35,7 +36,7 @@ public class ContactManager {
 		observer = obj;
 	}
 
-	public static void readContactsAndSetPhotos(POKEMON_GENERATION [] generationsSelected)
+	public static void readContactsAndSetPhotos()
 	{
 		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
 				null, ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1",
@@ -62,21 +63,22 @@ public class ContactManager {
 			//				}
 			//			}
 			//			Log.d("ContactInfo: ", "----------------------------------------------------------------------------------------");
-
+			String datavr = cursor.getString(cursor.getColumnIndex("data_version"));
+			Log.d("Arvin", name + "  " + datavr);
 
 			//String dataVersion = cursor.getString(0); //data_version
 			//if (!name.equals(prevName)) {
 			observer.contactUpdated(contactNumber);
 			Log.d("xContactName:", name + "   " + rawId);
 
-			Integer randomAppendix = POKEMON_GENERATION.getFileAppendix(generationsSelected);
+			Integer randomAppendix = POKEMON_GENERATION.getRandomFileAppendix();
 			String image = randomAppendix.toString();
 			Log.d("RANDNUM", image);
 
 			Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/" + image + ".png");
 			Bitmap centeredBitmap = centerBitmap(bitmap);
 			Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
-			setContactPicture(rawId, centeredBitmap, rawContactUri);
+			//setContactPicture(rawId, centeredBitmap, rawContactUri);
 
 			contactNumber++;
 			//}
