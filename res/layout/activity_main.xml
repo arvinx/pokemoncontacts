@@ -120,4 +120,15 @@
             android:textSize="15sp" />
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/reset_button"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/selectGenerationView"
+        android:background="@null"
+        android:scaleType="fitCenter"
+        android:onClick="actionReset"
+        android:src="@drawable/icon_factory_reset" />
+
 </RelativeLayout>

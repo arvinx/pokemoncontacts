@@ -12,7 +12,10 @@
     <string name="option_g3">Ruby and Sapphire</string>
     <string name="option_g4">Diamond and Pearl</string>
     <string name="option_g5">Black and White</string>
-    <string name="title_activity_contacts_list">ContactsList</string>
-    <string name="title_activity_image_grid">ImageGrid</string>
+
+    <string name="welcome_title">welcome</string>
+    <string name="welcome_body">first before you start changing contact images, you should backup existing images in case you dont\'t like pokemon and cute kittens anymore</string>
+    <string name="welcome_confirm">press next to start a backup to internal memory</string>
+    <string name="welcome_button_text">next</string>
 
 </resources>

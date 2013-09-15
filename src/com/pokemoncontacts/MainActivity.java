@@ -3,11 +3,13 @@ package com.pokemoncontacts;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.CheckBox;
@@ -18,7 +20,7 @@ import android.widget.LinearLayout;
 public class MainActivity extends Activity {
 	ProgressDialog mProgressDialog;
 	AlertDialog.Builder alertCompletion;
-
+	Context mContext = this;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,36 +34,50 @@ public class MainActivity extends Activity {
 	{
 		boolean valid = setSelectedGenerations(view);
 		if (valid) {
-			new UpdateContacts().execute();
+			new ContactUpdater().execute();
 		} else {
-			showOptionsError();
+			showDialog("Whooops", "Make sure you have at least one pokemon generation selected!", "OK");
 		}
 	}
-	
+
 	public void actionCustom(View view) {
 		boolean valid = setSelectedGenerations(view);
 		if (valid) {
 			Intent intent = new Intent(this, ContactsList.class);
 			startActivity(intent);
 		} else {
-			showOptionsError();
+			showDialog("Whooops", "Make sure you have at least one pokemon generation selected!", "OK");
 		}
 	}
-	
+
+	public void actionReset(View view) {
+		alertCompletion = new AlertDialog.Builder(
+				MainActivity.this);
+		OnClickListener onClickListener = new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				new ContactRestorer().execute();
+			}
+		};
+		alertCompletion.setTitle("Reset Contact Images?");
+		alertCompletion.setMessage("Are you sure you want to restore your contact images to the ones before installing this app?");
+		alertCompletion.setPositiveButton("Yes", onClickListener);
+		alertCompletion.setNegativeButton("No", null);
+		alertCompletion.create();
+		alertCompletion.show();
+	}
+
 	private void checkFirstTimeRunning() {
 		String PREFS_NAME = "MyPrefsFile";
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		if (settings.getBoolean(Constants.FIRST_RUN_KEY, true)) {
-			Log.d("FIRSTRUN", "YES");
-			backupContactPhotos();
-		    settings.edit().putBoolean(Constants.FIRST_RUN_KEY, false).commit(); 
+			settings.edit().putBoolean(Constants.FIRST_RUN_KEY, false).commit(); 
+			Intent intent = new Intent(this, WelcomeScreen.class);
+			startActivity(intent);
 		}
 	}
-	
-	private void backupContactPhotos() {
-		
-	}
-	
+
 	private boolean setSelectedGenerations(View view) {
 		view = (View) view.getParent().getParent();
 		LinearLayout options = (LinearLayout) view.findViewById(R.id.selectGenerationView);
@@ -75,18 +91,18 @@ public class MainActivity extends Activity {
 		}
 		return false;
 	}
-	
-	private void showOptionsError() {
+
+	private void showDialog(String title, String message, String buttonText) {
 		alertCompletion = new AlertDialog.Builder(
-		        MainActivity.this);
-		alertCompletion.setTitle("Whoooops");
-		alertCompletion.setMessage("Make sure you have at least one pokemon generation selected!");
-		alertCompletion.setPositiveButton("OK", null);
+				MainActivity.this);
+		alertCompletion.setTitle(title);
+		alertCompletion.setMessage(message);
+		alertCompletion.setPositiveButton(buttonText, null);
 		alertCompletion.create();
 		alertCompletion.show();
 	}
 
-	private class UpdateContacts extends AsyncTask<Void, Integer, Void> implements ContactPhotoChangedNotification {
+	private class ContactUpdater extends AsyncTask<Void, Integer, Void> implements ContactPhotoChangedNotification {
 
 		private Integer numberOfContacts = ContactManager.getNumberOfContacts() - 1;
 		@Override
@@ -96,13 +112,13 @@ public class MainActivity extends Activity {
 			setUpProgressDialog();
 			mProgressDialog.show();
 		}
-		
+
 		@Override
 		protected Void doInBackground(Void ... params) {
 			ContactManager.readContactsAndSetPhotos();
 			return null;
 		}
-		
+
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			super.onProgressUpdate(progress);
@@ -118,7 +134,7 @@ public class MainActivity extends Activity {
 				publishProgress(progress);
 			}
 		}
-		
+
 		private void setUpProgressDialog() {
 			mProgressDialog = new ProgressDialog(MainActivity.this);
 			mProgressDialog.setTitle("Updating Contacts");
@@ -128,23 +144,80 @@ public class MainActivity extends Activity {
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			mProgressDialog.setCanceledOnTouchOutside(false);
 		}
-		
+
 		public void displayCompletionAlert() {
 			MainActivity.this.runOnUiThread(new Runnable() {
-				  public void run() {
-				    setUpAlertCompletionDialog();
-				    alertCompletion.show();
-				  }
-				});
-		}
-		
-		public void setUpAlertCompletionDialog() {
-			alertCompletion = new AlertDialog.Builder(
-			        MainActivity.this);
-			alertCompletion.setTitle("Updated Contacts Successfully");
-			alertCompletion.setPositiveButton("Cool", null);
-			alertCompletion.create();
+				public void run() {
+					showDialog("Updated Contacts Successfully", "", "Cool");
+				}
+			});
 		}
 	}
+
+
+	private class ContactRestorer extends AsyncTask<Void, Integer, Void> implements ContactPhotoChangedNotification {
+
+		private Integer numberOfContacts = ContactManager.numContactsToRestore() - 1;
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			ContactManager.setObserver(this);
+			setUpProgressDialog();
+			mProgressDialog.show();
+		}
+
+		@Override
+		protected Void doInBackground(Void ... params) {
+			ContactManager.restoreContacts();
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... progress) {
+			super.onProgressUpdate(progress);
+			mProgressDialog.setProgress(progress[0]);
+		}
+
+		@Override
+		public void contactUpdated(Integer progress) {
+			if (progress.intValue() == numberOfContacts.intValue()) {
+				mProgressDialog.dismiss();
+				displayCompletionAlert();
+			} else if (progress.intValue() == -1) {
+				mProgressDialog.dismiss();
+				dispalyFailureAlert();
+			} else {
+				publishProgress(progress);
+			}
+		}
+
+		private void setUpProgressDialog() {
+			mProgressDialog = new ProgressDialog(MainActivity.this);
+			mProgressDialog.setTitle("Restoring Contacts");
+			//mProgressDialog.setMessage("This might take a while!");
+			mProgressDialog.setIndeterminate(false);
+			mProgressDialog.setMax(numberOfContacts);
+			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			mProgressDialog.setCanceledOnTouchOutside(false);
+		}
+
+		public void displayCompletionAlert() {
+			MainActivity.this.runOnUiThread(new Runnable() {
+				public void run() {
+					showDialog("Restored Contacts Successfully", null, "Cool");
+				}
+			});
+		}
+		
+		public void dispalyFailureAlert() {
+			MainActivity.this.runOnUiThread(new Runnable() {
+				public void run() {
+					showDialog("Could not restore", "Backup folder seems to be missing...", "=(");
+				}
+			});
+		}
+	}
+
+
 
 }

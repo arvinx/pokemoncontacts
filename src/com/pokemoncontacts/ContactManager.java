@@ -1,6 +1,9 @@
 package com.pokemoncontacts;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -14,9 +17,11 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.MediaStore;
 import android.util.Log;
 
 
@@ -27,7 +32,8 @@ public class ContactManager {
 
 	static final String[] PROJECTION = new String[] {ContactsContract.Data._ID,
 		ContactsContract.Data.DISPLAY_NAME};
-
+	static final String[] PROJECTION_BACKUP = new String[] {ContactsContract.Data.CONTACT_ID,
+		ContactsContract.Data.DISPLAY_NAME, ContactsContract.Data.PHOTO_URI};
 	// This is the select criteria
 	static final String SELECTION = "((" + 
 			ContactsContract.Data.DISPLAY_NAME + " NOTNULL) AND (" +
@@ -98,6 +104,93 @@ public class ContactManager {
 
 	}
 
+	public static void restoreContacts() {
+		File backupDirectory = new File(Environment.getExternalStorageDirectory().toString() +  "/pokemoncontacts_backup");
+		 if (!backupDirectory.isDirectory()) {
+		        String[] children = backupDirectory.list();
+		        for (int i=0; i<children.length; i++) {
+		        	restoreContact(backupDirectory, children[i]);
+		        	observer.contactUpdated(i+1);
+		        }
+		 }
+		 observer.contactUpdated(-1);
+	}
+	
+	private static void restoreContact(File backupDirectory, String filename) {
+		int index = filename.indexOf(".");
+		String ID = filename.substring(0, index);
+		String photoLocation = backupDirectory.toString() + "/" + filename;
+		Bitmap bitmap = BitmapFactory.decodeFile(photoLocation);
+		Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
+		try {
+			setContactPicture(ID, centeredBitmap, false);
+		} catch (Exception ie) {
+			ie.printStackTrace();
+		}
+		
+	}
+	
+	public static int numContactsToRestore() {
+		File backupDirectory = new File(Environment.getExternalStorageDirectory().toString() +  "/pokemoncontacts_backup");
+	    if (backupDirectory.isDirectory()) {
+	        return backupDirectory.list().length;
+	    }
+	    return 0;
+	}
+	
+	public static void backupContactPhotos() {
+		//Log.d("Envio", Environment.getExternalStorageDirectory().toString());
+		File backupDirectory = new File(Environment.getExternalStorageDirectory().toString() +  "/pokemoncontacts_backup");
+		deleteDir(backupDirectory);
+		backupDirectory.mkdirs();
+
+		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+				PROJECTION_BACKUP, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
+		Integer contactNumber = 0;
+		String name = null;
+		while (cursor.moveToNext()) {
+			name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+			String ID = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
+			String photoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.PHOTO_URI));
+			if (photoUri != null) {
+				Uri uri = Uri.parse(photoUri);
+				Bitmap bitmap;
+				try {
+					bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+					File outpt = new File(backupDirectory.toString(), ID + ".png");
+					FileOutputStream outptOs = new FileOutputStream( outpt );
+					bitmap.compress(Bitmap.CompressFormat.PNG, 100, outptOs);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					Log.e("Error backingup", "error file not found");
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Log.e("Error backingup", "error io");
+					e.printStackTrace();
+				}
+			}
+			observer.contactUpdated(contactNumber);
+			contactNumber++;
+		}
+		Log.e("Finished", "early");
+		cursor.close();
+	}
+	
+	private static boolean deleteDir(File dir) {
+	    if (dir.isDirectory()) {
+	        String[] children = dir.list();
+	        for (int i=0; i<children.length; i++) {
+	            boolean success = deleteDir(new File(dir, children[i]));
+	            if (!success) {
+	                return false;
+	            }
+	        }
+	    }
+
+	    return dir.delete();
+	}
+	
 	public static Bitmap centerBitmap(Bitmap bitmap) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
@@ -120,9 +213,10 @@ public class ContactManager {
 
 	public static Integer getNumberOfContacts() {
 
-		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
-				null, ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1",
-				null, ContactsContract.Contacts.DISPLAY_NAME);
+		//Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+		//		null, SELECTION, null, null);
+		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+				PROJECTION_BACKUP, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
 		return cursor.getCount();
 	}
 
