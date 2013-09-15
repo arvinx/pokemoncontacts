@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.CheckBox;
@@ -23,6 +25,7 @@ public class MainActivity extends Activity {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 		ContactManager.context = this;
+		checkFirstTimeRunning();
 	}
 
 	public void actionRandomGenerate(View view) 
@@ -36,17 +39,6 @@ public class MainActivity extends Activity {
 	}
 	
 	public void actionCustom(View view) {
-//		InputStream is;
-//		try {
-//			is = getAssets().open("kinsei01_pokeball-wall-paper.png");
-//			Bitmap image = BitmapFactory.decodeStream(is);
-//
-//			
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			Log.e("Error Image Load", "could not open");
-//			e.printStackTrace();
-//		}
 		boolean valid = setSelectedGenerations(view);
 		if (valid) {
 			Intent intent = new Intent(this, ContactsList.class);
@@ -54,6 +46,20 @@ public class MainActivity extends Activity {
 		} else {
 			showOptionsError();
 		}
+	}
+	
+	private void checkFirstTimeRunning() {
+		String PREFS_NAME = "MyPrefsFile";
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		if (settings.getBoolean(Constants.FIRST_RUN_KEY, true)) {
+			Log.d("FIRSTRUN", "YES");
+			backupContactPhotos();
+		    settings.edit().putBoolean(Constants.FIRST_RUN_KEY, false).commit(); 
+		}
+	}
+	
+	private void backupContactPhotos() {
+		
 	}
 	
 	private boolean setSelectedGenerations(View view) {
