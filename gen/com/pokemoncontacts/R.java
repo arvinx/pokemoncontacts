@@ -31,7 +31,8 @@ public final class R {
         public static final int row_background=0x7f020004;
     }
     public static final class id {
-        public static final int action_settings=0x7f090013;
+        public static final int action_settings=0x7f090015;
+        public static final int alt_opt=0x7f09000e;
         public static final int button_custom=0x7f090006;
         public static final int button_random=0x7f090005;
         public static final int checkBoxG1=0x7f090009;
@@ -39,18 +40,19 @@ public final class R {
         public static final int checkBoxG3=0x7f09000b;
         public static final int checkBoxG4=0x7f09000c;
         public static final int checkBoxG5=0x7f09000d;
+        public static final int checkBoxGX=0x7f09000f;
         public static final int contactImage=0x7f090000;
         public static final int contactName=0x7f090001;
         public static final int gridview=0x7f090002;
-        public static final int reset_button=0x7f09000e;
+        public static final int reset_button=0x7f090010;
         public static final int selectGenerationView=0x7f090007;
         public static final int selectGenerationView_options=0x7f090008;
         public static final int textView1=0x7f090003;
         public static final int view_main_option=0x7f090004;
-        public static final int welcome_body=0x7f090010;
-        public static final int welcome_button_next=0x7f090012;
-        public static final int welcome_confirm=0x7f090011;
-        public static final int welcome_title=0x7f09000f;
+        public static final int welcome_body=0x7f090012;
+        public static final int welcome_button_next=0x7f090014;
+        public static final int welcome_confirm=0x7f090013;
+        public static final int welcome_title=0x7f090011;
     }
     public static final class layout {
         public static final int activity_contacts_list=0x7f030000;
@@ -66,6 +68,7 @@ public final class R {
     }
     public static final class string {
         public static final int action_settings=0x7f060001;
+        public static final int alterative_option=0x7f06000c;
         public static final int app_name=0x7f060000;
         public static final int button_custom=0x7f060004;
         public static final int button_random=0x7f060003;
@@ -75,11 +78,12 @@ public final class R {
         public static final int option_g3=0x7f060008;
         public static final int option_g4=0x7f060009;
         public static final int option_g5=0x7f06000a;
+        public static final int option_gX=0x7f06000b;
         public static final int selectGenerationView_options=0x7f060005;
-        public static final int welcome_body=0x7f06000c;
-        public static final int welcome_button_text=0x7f06000e;
-        public static final int welcome_confirm=0x7f06000d;
-        public static final int welcome_title=0x7f06000b;
+        public static final int welcome_body=0x7f06000e;
+        public static final int welcome_button_text=0x7f060010;
+        public static final int welcome_confirm=0x7f06000f;
+        public static final int welcome_title=0x7f06000d;
     }
     public static final class style {
         /** 

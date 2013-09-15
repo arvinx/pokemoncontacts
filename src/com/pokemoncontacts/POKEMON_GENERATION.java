@@ -9,7 +9,8 @@ public enum POKEMON_GENERATION implements Serializable {
 	GENERATION_2 (152, 251),
 	GENERATION_3 (252, 386),
 	GENERATION_4 (387, 493),
-	GENERATION_5 (494, 647);
+	GENERATION_5 (494, 647),
+	GENERATION_X (0, 151);
 	
 	private final int start;
 	private final int end;

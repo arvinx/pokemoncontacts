@@ -26,7 +26,7 @@ public class ImageGrid extends Activity {
 				Intent intent = getIntent();
 				String ID = intent.getStringExtra("ID");
 				boolean isPersonalProfile = intent.getBooleanExtra(Constants.IS_PERSONAL_PROFILE, false);
-				Toast.makeText(ImageGrid.this, "Image Set", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(ImageGrid.this, "Image Set", Toast.LENGTH_SHORT).show();
 				ContactManager.setContactPicture(ID, PokemonCollection.getImage(position, mContext), isPersonalProfile);
 				finish();
 			}

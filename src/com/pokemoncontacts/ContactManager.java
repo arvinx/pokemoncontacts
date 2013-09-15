@@ -6,11 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.graphics.Bitmap;
@@ -18,6 +21,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
@@ -105,18 +109,20 @@ public class ContactManager {
 	}
 
 	public static void restoreContacts() {
+		ArrayList<String> restoredContacts = new ArrayList<String>();
 		File backupDirectory = new File(Environment.getExternalStorageDirectory().toString() +  "/pokemoncontacts_backup");
-		 if (!backupDirectory.isDirectory()) {
+		 if (backupDirectory.isDirectory()) {
 		        String[] children = backupDirectory.list();
 		        for (int i=0; i<children.length; i++) {
-		        	restoreContact(backupDirectory, children[i]);
+		        	String savedId = restoreContact(backupDirectory, children[i]);
+		        	restoredContacts.add(savedId);
 		        	observer.contactUpdated(i+1);
 		        }
 		 }
-		 observer.contactUpdated(-1);
+		 restoreToDefaultForOtherContacts(restoredContacts);
 	}
 	
-	private static void restoreContact(File backupDirectory, String filename) {
+	private static String restoreContact(File backupDirectory, String filename) {
 		int index = filename.indexOf(".");
 		String ID = filename.substring(0, index);
 		String photoLocation = backupDirectory.toString() + "/" + filename;
@@ -127,7 +133,28 @@ public class ContactManager {
 		} catch (Exception ie) {
 			ie.printStackTrace();
 		}
-		
+		return ID;
+	}
+	
+	private static void restoreToDefaultForOtherContacts(ArrayList<String> restoredContacts) {
+		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+				new String[] {ContactsContract.Data.CONTACT_ID}, SELECTION, null, null);
+		while (cursor.moveToNext()) {
+			String ID = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
+			if (!restoredContacts.contains(ID)) {
+				InputStream is;
+				try {
+					is = context.getAssets().open(Constants.IMAGES_OTHER + "default_user.jpg");
+					Bitmap bmp = BitmapFactory.decodeStream(is);
+					setContactPicture(ID, bmp, false);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Log.e("Error Image Load", "could not open");
+					e.printStackTrace();
+				}
+			}
+		}
+		cursor.close();
 	}
 	
 	public static int numContactsToRestore() {
@@ -219,7 +246,11 @@ public class ContactManager {
 				PROJECTION_BACKUP, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
 		return cursor.getCount();
 	}
-
+//
+//	
+//	public static void deleteContactPicture(String id) {
+//
+//	}
 	public static void setContactPicture(String ID, Bitmap picture, boolean isPersonalProfile){
 		Uri rawContactUri;
 		if (isPersonalProfile) {

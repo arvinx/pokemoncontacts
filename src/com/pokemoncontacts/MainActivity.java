@@ -49,6 +49,30 @@ public class MainActivity extends Activity {
 			showDialog("Whooops", "Make sure you have at least one pokemon generation selected!", "OK");
 		}
 	}
+	
+	public void actionAlterativeOption(View view) {
+		CheckBox checkBox = (CheckBox)view;
+		View parentView = (View) view.getParent();
+		if (checkBox.isChecked()) {
+			((CheckBox)parentView.findViewById(R.id.checkBoxG1)).setChecked(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG2)).setChecked(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG3)).setChecked(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG4)).setChecked(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG5)).setChecked(false);
+			
+			((CheckBox)parentView.findViewById(R.id.checkBoxG1)).setEnabled(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG2)).setEnabled(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG3)).setEnabled(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG4)).setEnabled(false);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG5)).setEnabled(false);
+		} else {
+			((CheckBox)parentView.findViewById(R.id.checkBoxG1)).setEnabled(true);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG2)).setEnabled(true);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG3)).setEnabled(true);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG4)).setEnabled(true);
+			((CheckBox)parentView.findViewById(R.id.checkBoxG5)).setEnabled(true);
+		}
+	}
 
 	public void actionReset(View view) {
 		alertCompletion = new AlertDialog.Builder(
