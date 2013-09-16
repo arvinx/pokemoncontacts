@@ -6,32 +6,42 @@ import java.io.InputStream;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 public class PokemonCollection {
 	
-	private static Bitmap [] pokemonImages = new Bitmap [POKEMON_GENERATION.GENERATION_5.getEnd()];
+	private static Bitmap [] pokemonImages = new Bitmap [POKEMON_GENERATION.getTotalPokemon()];
 	private static int [] arrayIndex;
-	public static POKEMON_GENERATION [] generationsSelected = new POKEMON_GENERATION [5];
+	public static POKEMON_GENERATION [] generationsSelected = new POKEMON_GENERATION [6];
 	
 	public static Bitmap getImage(int position, Context context) {
+		int base = (generationsSelected[5] != null) ?  (POKEMON_GENERATION.GENERATION_5.getEnd() + 1) : 0;
 		position = arrayIndex[position];
     	if (pokemonImages[position] == null) {
-//    		Bitmap bitmap = BitmapFactory.decodeFile(Constants.IMAGES_ICON + (position+1) + ".png");
 			InputStream is;
 			try {
-				is = context.getAssets().open(Constants.IMAGES_ICON + (position+1) + ".png");
+				String folder = getSubAssetDir();
+				is = context.getAssets().open(folder + (position - base + 1) + ".png");
 				Bitmap bitmap = BitmapFactory.decodeStream(is);
 	    		Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
 	    		pokemonImages[position] = centeredBitmap;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				Log.e("Error Image Load", "could not open");
+				//Log.e("Error Image Load", "could not open");
 				e.printStackTrace();
 			}
     	}
     	
     	return pokemonImages[position];
+	}
+	
+	public static String getSubAssetDir() {
+		String folder;
+		if (generationsSelected[5] != null) {
+			folder = Constants.IMAGES_SCREENSHOTS;
+		} else {
+			 folder = Constants.IMAGES_ICON;
+		}
+		return folder;
 	}
 	
 	public static int getTotalPokemon() {
@@ -41,7 +51,6 @@ public class PokemonCollection {
         		total += generation.getEnd() - generation.getStart();
         	}
         }
-        Log.d("TOTAL:", String.valueOf(total));
         return total;
 	}
 	
@@ -54,7 +63,8 @@ public class PokemonCollection {
 				int size = generation.getEnd() - generation.getStart();
 				i = 0;
 				while (i < size) {
-					arrayIndex[index] = generation.getStart() + i;
+					int base = (generation == POKEMON_GENERATION.GENERATION_X) ?  (POKEMON_GENERATION.GENERATION_5.getEnd() + 1) : 0;
+					arrayIndex[index] = generation.getStart() + base + i;
 					index++;
 					i++;
 				}

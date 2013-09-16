@@ -8,12 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.graphics.Bitmap;
@@ -21,12 +19,10 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.MediaStore;
-import android.util.Log;
 
 
 public class ContactManager {
@@ -36,9 +32,8 @@ public class ContactManager {
 
 	static final String[] PROJECTION = new String[] {ContactsContract.Data._ID,
 		ContactsContract.Data.DISPLAY_NAME};
-	static final String[] PROJECTION_BACKUP = new String[] {ContactsContract.Data.CONTACT_ID,
-		ContactsContract.Data.DISPLAY_NAME, ContactsContract.Data.PHOTO_URI};
-	// This is the select criteria
+	static final String[] PROJECTION_BACKUP = new String[] {ContactsContract.Data.CONTACT_ID
+		, ContactsContract.Data.PHOTO_URI};
 	static final String SELECTION = "((" + 
 			ContactsContract.Data.DISPLAY_NAME + " NOTNULL) AND (" +
 			ContactsContract.Data.DISPLAY_NAME + " != '' ) AND (" +
@@ -51,57 +46,25 @@ public class ContactManager {
 	public static void readContactsAndSetPhotos()
 	{
 		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
-				null, ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1",
+				null, SELECTION,
 				null, ContactsContract.Contacts.DISPLAY_NAME);
 		//String prevName = null;
-		String name = null;
 		Integer contactNumber = 0;
 		while (cursor.moveToNext()) {
-			//prevName = name;
-			name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-			//String hasnum = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-			//String group = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.IN_VISIBLE_GROUP));
-
 			String rawId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
-			//			
-			//			String [] columns = cursor.getColumnNames();
-			//			for (String columnName : columns) {
-			//				String msg = cursor.getString(cursor.getColumnIndex(columnName));
-			//				if (msg == null) {
-			//					msg = "null";
-			//				}
-			//				if (name.equals("temp")) {
-			//					Log.d("ContactInfo: ", columnName + "   " + msg);
-			//				}
-			//			}
-			//			Log.d("ContactInfo: ", "----------------------------------------------------------------------------------------");
-//			String datavr = cursor.getString(cursor.getColumnIndex("data_version"));
-//			Log.d("Arvin", name + "  " + datavr);
-
-			//String dataVersion = cursor.getString(0); //data_version
-			//if (!name.equals(prevName)) {
 			observer.contactUpdated(contactNumber);
-			Log.d("xContactName:", name + "   " + rawId);
-
 			Integer randomAppendix = POKEMON_GENERATION.getRandomFileAppendix();
 			String image = randomAppendix.toString();
-			Log.d("RANDNUM", image);
-
-//			Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/Download/assets/icons/" + image + ".png");
-//			Bitmap centeredBitmap = centerBitmap(bitmap);
-//			//Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon().appendPath("" + cursor.getLong(0)).build();
-//			setContactPicture(rawId, centeredBitmap, false);
-
 			InputStream is;
 			try {
-				is = context.getAssets().open(Constants.IMAGES_ICON + image + ".png");
+				is = context.getAssets().open(PokemonCollection.getSubAssetDir() + image + ".png");
 				Bitmap bmp = BitmapFactory.decodeStream(is);
 				Bitmap centeredBitmap = centerBitmap(bmp);
 				setContactPicture(rawId, centeredBitmap, false);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				Log.e("Error Image Load", "could not open");
-				e.printStackTrace();
+				//Log.e("Error Image Load", "could not open");
+				//e.printStackTrace();
 			}
 			contactNumber++;
 		}
@@ -141,7 +104,7 @@ public class ContactManager {
 				new String[] {ContactsContract.Data.CONTACT_ID}, SELECTION, null, null);
 		while (cursor.moveToNext()) {
 			String ID = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
-			if (!restoredContacts.contains(ID)) {
+			//if (!restoredContacts.contains(ID)) {
 				InputStream is;
 				try {
 					is = context.getAssets().open(Constants.IMAGES_OTHER + "default_user.jpg");
@@ -149,10 +112,10 @@ public class ContactManager {
 					setContactPicture(ID, bmp, false);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					Log.e("Error Image Load", "could not open");
+					//Log.e("Error Image Load", "could not open");
 					e.printStackTrace();
 				}
-			}
+			//}
 		}
 		cursor.close();
 	}
@@ -166,7 +129,6 @@ public class ContactManager {
 	}
 	
 	public static void backupContactPhotos() {
-		//Log.d("Envio", Environment.getExternalStorageDirectory().toString());
 		File backupDirectory = new File(Environment.getExternalStorageDirectory().toString() +  "/pokemoncontacts_backup");
 		deleteDir(backupDirectory);
 		backupDirectory.mkdirs();
@@ -174,9 +136,7 @@ public class ContactManager {
 		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION_BACKUP, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
 		Integer contactNumber = 0;
-		String name = null;
 		while (cursor.moveToNext()) {
-			name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 			String ID = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
 			String photoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.PHOTO_URI));
 			if (photoUri != null) {
@@ -189,18 +149,17 @@ public class ContactManager {
 					bitmap.compress(Bitmap.CompressFormat.PNG, 100, outptOs);
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
-					Log.e("Error backingup", "error file not found");
-					e.printStackTrace();
+					//Log.e("Error backingup", "error file not found");
+					//e.printStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					Log.e("Error backingup", "error io");
-					e.printStackTrace();
+					//Log.e("Error backingup", "error io");
+					//e.printStackTrace();
 				}
 			}
 			observer.contactUpdated(contactNumber);
 			contactNumber++;
 		}
-		Log.e("Finished", "early");
 		cursor.close();
 	}
 	
@@ -239,9 +198,6 @@ public class ContactManager {
 	}
 
 	public static Integer getNumberOfContacts() {
-
-		//Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-		//		null, SELECTION, null, null);
 		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION_BACKUP, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
 		return cursor.getCount();
@@ -264,7 +220,7 @@ public class ContactManager {
 	private static void setContactPictureHelper(String ID, Bitmap picture, Uri rawContactUri) {
 		ContentResolver cr = context.getContentResolver();
 		if(rawContactUri == null){
-			Log.e("rawContactUri", "is null");
+			//Log.e("rawContactUri", "is null");
 			return;
 		}
 		ContentValues values = new ContentValues(); 

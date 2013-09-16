@@ -10,7 +10,7 @@ public enum POKEMON_GENERATION implements Serializable {
 	GENERATION_3 (252, 386),
 	GENERATION_4 (387, 493),
 	GENERATION_5 (494, 647),
-	GENERATION_X (0, 151);
+	GENERATION_X (0, 163);
 	
 	private final int start;
 	private final int end;
@@ -26,6 +26,10 @@ public enum POKEMON_GENERATION implements Serializable {
 	
 	public int getEnd() {
 		return this.end;
+	}
+	
+	public static int getTotalPokemon() {
+		return GENERATION_5.end + GENERATION_X.end;
 	}
 	
 	public static int getIndexInGeneration(POKEMON_GENERATION generation) {

@@ -110,6 +110,7 @@ public class MainActivity extends Activity {
 		PokemonCollection.generationsSelected[2] = ((CheckBox)options.findViewById(R.id.checkBoxG3)).isChecked() ? POKEMON_GENERATION.GENERATION_3 : null;
 		PokemonCollection.generationsSelected[3] = ((CheckBox)options.findViewById(R.id.checkBoxG4)).isChecked() ? POKEMON_GENERATION.GENERATION_4 : null;
 		PokemonCollection.generationsSelected[4] = ((CheckBox)options.findViewById(R.id.checkBoxG5)).isChecked() ? POKEMON_GENERATION.GENERATION_5 : null;
+		PokemonCollection.generationsSelected[5] = ((CheckBox)options.findViewById(R.id.checkBoxGX)).isChecked() ? POKEMON_GENERATION.GENERATION_X : null;
 		for (POKEMON_GENERATION generation : PokemonCollection.generationsSelected) {
 			if (generation != null) return true;
 		}
@@ -162,7 +163,6 @@ public class MainActivity extends Activity {
 		private void setUpProgressDialog() {
 			mProgressDialog = new ProgressDialog(MainActivity.this);
 			mProgressDialog.setTitle("Updating Contacts");
-			//mProgressDialog.setMessage("This might take a while!");
 			mProgressDialog.setIndeterminate(false);
 			mProgressDialog.setMax(numberOfContacts);
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -172,7 +172,7 @@ public class MainActivity extends Activity {
 		public void displayCompletionAlert() {
 			MainActivity.this.runOnUiThread(new Runnable() {
 				public void run() {
-					showDialog("Updated Contacts Successfully", "", "Cool");
+					showDialog("Updated Contacts Successfully", null, "Cool");
 				}
 			});
 		}
@@ -218,7 +218,6 @@ public class MainActivity extends Activity {
 		private void setUpProgressDialog() {
 			mProgressDialog = new ProgressDialog(MainActivity.this);
 			mProgressDialog.setTitle("Restoring Contacts");
-			//mProgressDialog.setMessage("This might take a while!");
 			mProgressDialog.setIndeterminate(false);
 			mProgressDialog.setMax(numberOfContacts);
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,14 +61,9 @@ public class ContactListAdapter extends ArrayAdapter<Contact> {
 				Bitmap centeredBitmap = ContactManager.centerBitmap(bmp);
 				imageView.setImageBitmap(centeredBitmap);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				Log.e("Error Image Load", "could not open");
-				e.printStackTrace();
+				//Log.e("Error Image Load", "could not open");
+				//e.printStackTrace();
 			}
-			
-//			Bitmap bitmap = BitmapFactory.decodeFile(Constants.IMAGES_OTHER + );
-//			Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
-//			imageView.setImageBitmap(centeredBitmap);
 		}
 		
 		return convertView;

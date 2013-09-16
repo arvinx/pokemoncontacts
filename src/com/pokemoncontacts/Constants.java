@@ -9,5 +9,6 @@ public class Constants {
 	
 	static String IMAGES_ICON = "images/icons/";
 	static String IMAGES_OTHER = "images/other/";
+	static String IMAGES_SCREENSHOTS = "images/screenshots/";
 	
 }

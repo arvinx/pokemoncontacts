@@ -24,7 +24,6 @@ public class WelcomeScreen extends Activity {
 	}
 
 	public void actionContinue(View view) {
-		//showDialog("Whooops", "Make sure you have at least one pokemon generation selected!", "OK");
 		new BackupContacts().execute();
 	}
 
@@ -74,7 +73,6 @@ public class WelcomeScreen extends Activity {
 		private void setUpProgressDialog() {
 			mProgressDialog = new ProgressDialog(WelcomeScreen.this);
 			mProgressDialog.setTitle("Backing up contacts");
-			//mProgressDialog.setMessage("This might take a while!");
 			mProgressDialog.setIndeterminate(false);
 			mProgressDialog.setMax(numberOfContacts);
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

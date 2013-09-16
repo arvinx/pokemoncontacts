@@ -37,7 +37,7 @@ public class ImageGridAdapter extends BaseAdapter {
         } else {
             imageView = (ImageView) convertView;
         }
-        imageView.setImageBitmap(PokemonCollection.getImage(position, mContext));
+        imageView.setImageBitmap(ContactManager.centerBitmap(PokemonCollection.getImage(position, mContext)));
         return imageView;
     }
 
