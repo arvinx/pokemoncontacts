@@ -29,7 +29,7 @@ public enum POKEMON_GENERATION implements Serializable {
 	}
 	
 	public static int getTotalPokemon() {
-		return GENERATION_5.end + GENERATION_X.end;
+		return GENERATION_5.end + GENERATION_X.end + 1;
 	}
 	
 	public static int getIndexInGeneration(POKEMON_GENERATION generation) {

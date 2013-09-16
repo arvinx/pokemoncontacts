@@ -6,6 +6,7 @@ import java.io.InputStream;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class PokemonCollection {
 	
@@ -16,6 +17,7 @@ public class PokemonCollection {
 	public static Bitmap getImage(int position, Context context) {
 		int base = (generationsSelected[5] != null) ?  (POKEMON_GENERATION.GENERATION_5.getEnd() + 1) : 0;
 		position = arrayIndex[position];
+		Log.d("POSITION:", String.valueOf(position));
     	if (pokemonImages[position] == null) {
 			InputStream is;
 			try {
@@ -65,6 +67,7 @@ public class PokemonCollection {
 				while (i < size) {
 					int base = (generation == POKEMON_GENERATION.GENERATION_X) ?  (POKEMON_GENERATION.GENERATION_5.getEnd() + 1) : 0;
 					arrayIndex[index] = generation.getStart() + base + i;
+					Log.d("INDEX", String.valueOf(arrayIndex[index]));
 					index++;
 					i++;
 				}
