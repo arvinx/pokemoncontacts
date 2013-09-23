@@ -39,32 +39,36 @@ public class ContactListAdapter extends ArrayAdapter<Contact> {
 		textView.setText(contact.displayName);
 		
 		ImageView imageView = (ImageView) convertView.findViewById(R.id.contactImage);
-		
-		if (contact.PhotoThumbnailUri != null) {
-			Uri uri = Uri.parse(contact.PhotoThumbnailUri);
-			Bitmap bitmap;
-			try {
-				bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
-				imageView.setImageBitmap(bitmap);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if (contact.thumbnailImg == null) {
+			if (contact.PhotoThumbnailUri != null) {
+				Uri uri = Uri.parse(contact.PhotoThumbnailUri);
+				Bitmap bitmap;
+				try {
+					bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+					imageView.setImageBitmap(bitmap);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				InputStream is;
+				try {
+					is = context.getAssets().open(Constants.IMAGES_OTHER + "ic_contact_picture.png");
+					Bitmap bmp = BitmapFactory.decodeStream(is);
+					Bitmap centeredBitmap = ContactManager.centerBitmap(bmp);
+					imageView.setImageBitmap(centeredBitmap);
+				} catch (IOException e) {
+					//Log.e("Error Image Load", "could not open");
+					//e.printStackTrace();
+				}
 			}
 		} else {
-			InputStream is;
-			try {
-				is = context.getAssets().open(Constants.IMAGES_OTHER + "ic_contact_picture.png");
-				Bitmap bmp = BitmapFactory.decodeStream(is);
-				Bitmap centeredBitmap = ContactManager.centerBitmap(bmp);
-				imageView.setImageBitmap(centeredBitmap);
-			} catch (IOException e) {
-				//Log.e("Error Image Load", "could not open");
-				//e.printStackTrace();
-			}
+			imageView.setImageBitmap(contact.thumbnailImg);
 		}
+		
 		
 		return convertView;
 	}

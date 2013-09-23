@@ -10,8 +10,8 @@ import android.util.Log;
 
 public class PokemonCollection {
 	
-	private static Bitmap [] pokemonImages = new Bitmap [POKEMON_GENERATION.getTotalPokemon()];
-	private static int [] arrayIndex;
+	public static Bitmap [] pokemonImages = new Bitmap [POKEMON_GENERATION.getTotalPokemon()];
+	public static int [] arrayIndex;
 	public static POKEMON_GENERATION [] generationsSelected = new POKEMON_GENERATION [6];
 	
 	public static Bitmap getImage(int position, Context context) {
@@ -19,18 +19,18 @@ public class PokemonCollection {
 		position = arrayIndex[position];
 		Log.d("POSITION:", String.valueOf(position));
     	if (pokemonImages[position] == null) {
-			InputStream is;
-			try {
-				String folder = getSubAssetDir();
-				is = context.getAssets().open(folder + (position - base + 1) + ".png");
-				Bitmap bitmap = BitmapFactory.decodeStream(is);
-	    		Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
-	    		pokemonImages[position] = centeredBitmap;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				//Log.e("Error Image Load", "could not open");
-				e.printStackTrace();
-			}
+    		InputStream is; //position - base + 1
+    		try {
+    			String folder = getSubAssetDir();
+    			is = context.getAssets().open(folder + String.valueOf(position - base + 1)  + ".png");
+    			Bitmap bitmap = BitmapFactory.decodeStream(is);
+        		Bitmap centeredBitmap = ContactManager.centerBitmap(bitmap);
+        		pokemonImages[position] = centeredBitmap;
+    		} catch (IOException e) {
+    			// TODO Auto-generated catch block
+    			//Log.e("Error Image Load", "could not open");
+    			e.printStackTrace();
+    		}
     	}
     	
     	return pokemonImages[position];
@@ -66,6 +66,7 @@ public class PokemonCollection {
 				i = 0;
 				while (i < size) {
 					int base = (generation == POKEMON_GENERATION.GENERATION_X) ?  (POKEMON_GENERATION.GENERATION_5.getEnd() + 1) : 0;
+					Log.d("POKECOLLECTION", "Index and val " + String.valueOf(index) + " " + String.valueOf(generation.getStart() + base + i));
 					arrayIndex[index] = generation.getStart() + base + i;
 					Log.d("INDEX", String.valueOf(arrayIndex[index]));
 					index++;
@@ -74,4 +75,5 @@ public class PokemonCollection {
 			}
 		}
 	}
+
 }

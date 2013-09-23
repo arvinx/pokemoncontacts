@@ -3,11 +3,11 @@
     package="com.pokemoncontacts"
     android:configChanges="orientation"
     android:screenOrientation="portrait"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="1.1" >
 
     <uses-sdk
-        android:minSdkVersion="16"
+        android:minSdkVersion="14"
         android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />

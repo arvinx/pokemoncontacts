@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -23,13 +24,14 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.MediaStore;
+import android.util.Log;
 
 
 public class ContactManager {
 
 	static Context context;
 	private static ContactPhotoChangedNotification observer;
-
+	public static List<Integer> randomIndices = new ArrayList<Integer>();
 	static final String[] PROJECTION = new String[] {ContactsContract.Data._ID,
 		ContactsContract.Data.DISPLAY_NAME};
 	static final String[] PROJECTION_BACKUP = new String[] {ContactsContract.Data.CONTACT_ID
@@ -39,21 +41,21 @@ public class ContactManager {
 			ContactsContract.Data.DISPLAY_NAME + " != '' ) AND (" +
 			ContactsContract.Contacts.HAS_PHONE_NUMBER + "=1))";
 
+
 	public static void setObserver(ContactPhotoChangedNotification obj) {
 		observer = obj;
 	}
 
 	public static void readContactsAndSetPhotos()
 	{
-		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
-				null, SELECTION,
-				null, ContactsContract.Contacts.DISPLAY_NAME);
-		//String prevName = null;
+		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+				PROJECTION_BACKUP, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
 		Integer contactNumber = 0;
-		while (cursor.moveToNext()) {
+		randomIndices.clear();
+		while (cursor.moveToNext() && contactNumber <= cursor.getCount()) {
 			String rawId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
 			observer.contactUpdated(contactNumber);
-			Integer randomAppendix = POKEMON_GENERATION.getRandomFileAppendix();
+			Integer randomAppendix = getUniqueRandomIndex();
 			String image = randomAppendix.toString();
 			InputStream is;
 			try {
@@ -68,7 +70,18 @@ public class ContactManager {
 			}
 			contactNumber++;
 		}
+		cursor.close();
 
+	}
+	
+	private static Integer getUniqueRandomIndex() {
+		Integer randomAppendix = POKEMON_GENERATION.getRandomFileAppendix();
+		while (randomIndices.contains(randomAppendix)) {
+			randomAppendix = POKEMON_GENERATION.getRandomFileAppendix();
+			Log.d("DBG manager", "STUCK IN GETTING INDEX LOOP");
+		}
+		randomIndices.add(randomAppendix);
+		return randomAppendix;
 	}
 
 	public static void restoreContacts() {
@@ -104,7 +117,7 @@ public class ContactManager {
 				new String[] {ContactsContract.Data.CONTACT_ID}, SELECTION, null, null);
 		while (cursor.moveToNext()) {
 			String ID = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
-			//if (!restoredContacts.contains(ID)) {
+			if (!restoredContacts.contains(ID)) {
 				InputStream is;
 				try {
 					is = context.getAssets().open(Constants.IMAGES_OTHER + "default_user.jpg");
@@ -115,7 +128,7 @@ public class ContactManager {
 					//Log.e("Error Image Load", "could not open");
 					e.printStackTrace();
 				}
-			//}
+			}
 		}
 		cursor.close();
 	}
@@ -200,13 +213,11 @@ public class ContactManager {
 	public static Integer getNumberOfContacts() {
 		Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION_BACKUP, SELECTION, null, ContactsContract.Contacts.DISPLAY_NAME);
-		return cursor.getCount();
+		int count = cursor.getCount();
+		cursor.close();
+		return count;
 	}
-//
-//	
-//	public static void deleteContactPicture(String id) {
-//
-//	}
+
 	public static void setContactPicture(String ID, Bitmap picture, boolean isPersonalProfile){
 		Uri rawContactUri;
 		if (isPersonalProfile) {

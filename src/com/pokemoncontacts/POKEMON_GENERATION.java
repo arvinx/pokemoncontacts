@@ -40,7 +40,8 @@ public enum POKEMON_GENERATION implements Serializable {
 		List<Integer> randomIndices = new ArrayList<Integer>();
 		for (POKEMON_GENERATION generation : PokemonCollection.generationsSelected) {
 			if (generation != null) {
-				randomIndices.add(getIndexInGeneration(generation));
+				Integer randNum = getIndexInGeneration(generation);
+				randomIndices.add(randNum);
 			}
 		}
 		int randomIndex = (int) Math.floor(Math.random()*randomIndices.size());

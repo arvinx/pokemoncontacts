@@ -1,6 +1,8 @@
 package com.pokemoncontacts;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -37,8 +39,32 @@ public class ImageGridAdapter extends BaseAdapter {
         } else {
             imageView = (ImageView) convertView;
         }
-        imageView.setImageBitmap(ContactManager.centerBitmap(PokemonCollection.getImage(position, mContext)));
+        if (PokemonCollection.pokemonImages[PokemonCollection.arrayIndex[position]] == null) {
+        	new ImageLoader(imageView).execute(position);
+        } else {
+        	imageView.setImageBitmap(PokemonCollection.getImage(position, mContext));
+        }
+        
         return imageView;
     }
-
+    
+    private class ImageLoader extends AsyncTask<Integer, Void, Bitmap> {
+    	ImageView imageView;
+    	
+    	public ImageLoader(ImageView imageView) {
+    		this.imageView = imageView;
+    	}
+    	
+		@Override
+		protected Bitmap doInBackground(Integer... params) {
+			return PokemonCollection.getImage(params[0], mContext);
+		}
+    	
+		@Override
+		protected void onPostExecute(Bitmap image) {
+			imageView.setImageBitmap(ContactManager.centerBitmap(image));
+		}
+    }
+    
+	
 }

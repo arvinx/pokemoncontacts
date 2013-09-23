@@ -5,9 +5,9 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -18,8 +18,7 @@ import android.widget.LinearLayout;
 
 
 public class MainActivity extends Activity {
-	ProgressDialog mProgressDialog;
-	AlertDialog.Builder alertCompletion;
+	AlertDialog.Builder alert;
 	Context mContext = this;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +33,7 @@ public class MainActivity extends Activity {
 	{
 		boolean valid = setSelectedGenerations(view);
 		if (valid) {
-			new ContactUpdater().execute();
+			confirmRandomGenAndRun();
 		} else {
 			showDialog("Whooops", "Make sure you have at least one pokemon generation selected!", "OK");
 		}
@@ -49,7 +48,7 @@ public class MainActivity extends Activity {
 			showDialog("Whooops", "Make sure you have at least one pokemon generation selected!", "OK");
 		}
 	}
-	
+
 	public void actionAlterativeOption(View view) {
 		CheckBox checkBox = (CheckBox)view;
 		View parentView = (View) view.getParent();
@@ -59,7 +58,7 @@ public class MainActivity extends Activity {
 			((CheckBox)parentView.findViewById(R.id.checkBoxG3)).setChecked(false);
 			((CheckBox)parentView.findViewById(R.id.checkBoxG4)).setChecked(false);
 			((CheckBox)parentView.findViewById(R.id.checkBoxG5)).setChecked(false);
-			
+
 			((CheckBox)parentView.findViewById(R.id.checkBoxG1)).setEnabled(false);
 			((CheckBox)parentView.findViewById(R.id.checkBoxG2)).setEnabled(false);
 			((CheckBox)parentView.findViewById(R.id.checkBoxG3)).setEnabled(false);
@@ -75,8 +74,6 @@ public class MainActivity extends Activity {
 	}
 
 	public void actionReset(View view) {
-		alertCompletion = new AlertDialog.Builder(
-				MainActivity.this);
 		OnClickListener onClickListener = new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -84,12 +81,8 @@ public class MainActivity extends Activity {
 				new ContactRestorer().execute();
 			}
 		};
-		alertCompletion.setTitle("Reset Contact Images?");
-		alertCompletion.setMessage("Are you sure you want to restore your contact images to the ones before installing this app?");
-		alertCompletion.setPositiveButton("Yes", onClickListener);
-		alertCompletion.setNegativeButton("No", null);
-		alertCompletion.create();
-		alertCompletion.show();
+		showOptionsDialog("Reset Contact Images?", "Are you sure you want to restore your contact images to the ones before installing this app?",
+				"Yes", onClickListener, "No");
 	}
 
 	private void checkFirstTimeRunning() {
@@ -100,6 +93,18 @@ public class MainActivity extends Activity {
 			Intent intent = new Intent(this, WelcomeScreen.class);
 			startActivity(intent);
 		}
+	}
+	
+	private void confirmRandomGenAndRun() {
+		OnClickListener onClickListener = new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				new ContactUpdater().execute();
+			}
+		};
+		showOptionsDialog("Random Generation?", "Are you sure you want to overwrite all contact images?",
+				"Yes", onClickListener, "No");
 	}
 
 	private boolean setSelectedGenerations(View view) {
@@ -118,24 +123,37 @@ public class MainActivity extends Activity {
 	}
 
 	private void showDialog(String title, String message, String buttonText) {
-		alertCompletion = new AlertDialog.Builder(
+		alert = new AlertDialog.Builder(
 				MainActivity.this);
-		alertCompletion.setTitle(title);
-		alertCompletion.setMessage(message);
-		alertCompletion.setPositiveButton(buttonText, null);
-		alertCompletion.create();
-		alertCompletion.show();
+		alert.setTitle(title);
+		alert.setMessage(message);
+		alert.setPositiveButton(buttonText, null);
+		alert.create();
+		alert.show();
+	}
+
+	private void showOptionsDialog(String title, String message, String positiveText, 
+			OnClickListener positiveAction, String negativeText) {
+		alert = new AlertDialog.Builder(
+				MainActivity.this);
+		alert.setTitle(title);
+		alert.setMessage(message);
+		alert.setPositiveButton(positiveText, positiveAction);
+		alert.setNegativeButton(negativeText, null);
+		alert.create();
+		alert.show();
 	}
 
 	private class ContactUpdater extends AsyncTask<Void, Integer, Void> implements ContactPhotoChangedNotification {
-
+		ProgressDialog progressDialog;
+		
 		private Integer numberOfContacts = ContactManager.getNumberOfContacts() - 1;
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 			ContactManager.setObserver(this);
+			ContactManager.randomIndices.clear();
 			setUpProgressDialog();
-			mProgressDialog.show();
 		}
 
 		@Override
@@ -143,17 +161,17 @@ public class MainActivity extends Activity {
 			ContactManager.readContactsAndSetPhotos();
 			return null;
 		}
-
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			super.onProgressUpdate(progress);
-			mProgressDialog.setProgress(progress[0]);
+			progressDialog.setProgress(progress[0]);
 		}
 
 		@Override
 		public void contactUpdated(Integer progress) {
 			if (progress.intValue() == numberOfContacts.intValue()) {
-				mProgressDialog.dismiss();
+				progressDialog.dismiss();
 				displayCompletionAlert();
 			} else {
 				publishProgress(progress);
@@ -161,12 +179,14 @@ public class MainActivity extends Activity {
 		}
 
 		private void setUpProgressDialog() {
-			mProgressDialog = new ProgressDialog(MainActivity.this);
-			mProgressDialog.setTitle("Updating Contacts");
-			mProgressDialog.setIndeterminate(false);
-			mProgressDialog.setMax(numberOfContacts);
-			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			mProgressDialog.setCanceledOnTouchOutside(false);
+			progressDialog = new ProgressDialog(MainActivity.this);
+			progressDialog.setTitle("Updating Contacts");
+			progressDialog.setIndeterminate(false);
+			progressDialog.setMax(numberOfContacts);
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressDialog.setProgress(0);
+			progressDialog.setCanceledOnTouchOutside(false);
+			progressDialog.show();
 		}
 
 		public void displayCompletionAlert() {
@@ -180,14 +200,14 @@ public class MainActivity extends Activity {
 
 
 	private class ContactRestorer extends AsyncTask<Void, Integer, Void> implements ContactPhotoChangedNotification {
-
+		ProgressDialog progressDialog;
 		private Integer numberOfContacts = ContactManager.numContactsToRestore() - 1;
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 			ContactManager.setObserver(this);
 			setUpProgressDialog();
-			mProgressDialog.show();
+			progressDialog.show();
 		}
 
 		@Override
@@ -199,16 +219,16 @@ public class MainActivity extends Activity {
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			super.onProgressUpdate(progress);
-			mProgressDialog.setProgress(progress[0]);
+			progressDialog.setProgress(progress[0]);
 		}
 
 		@Override
 		public void contactUpdated(Integer progress) {
 			if (progress.intValue() == numberOfContacts.intValue()) {
-				mProgressDialog.dismiss();
+				progressDialog.dismiss();
 				displayCompletionAlert();
 			} else if (progress.intValue() == -1) {
-				mProgressDialog.dismiss();
+				progressDialog.dismiss();
 				dispalyFailureAlert();
 			} else {
 				publishProgress(progress);
@@ -216,12 +236,13 @@ public class MainActivity extends Activity {
 		}
 
 		private void setUpProgressDialog() {
-			mProgressDialog = new ProgressDialog(MainActivity.this);
-			mProgressDialog.setTitle("Restoring Contacts");
-			mProgressDialog.setIndeterminate(false);
-			mProgressDialog.setMax(numberOfContacts);
-			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			mProgressDialog.setCanceledOnTouchOutside(false);
+			progressDialog = new ProgressDialog(MainActivity.this);
+			progressDialog.setTitle("Restoring Contacts");
+			progressDialog.setIndeterminate(false);
+			progressDialog.setMax(numberOfContacts);
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressDialog.setProgress(0);
+			progressDialog.setCanceledOnTouchOutside(false);
 		}
 
 		public void displayCompletionAlert() {
@@ -231,7 +252,7 @@ public class MainActivity extends Activity {
 				}
 			});
 		}
-		
+
 		public void dispalyFailureAlert() {
 			MainActivity.this.runOnUiThread(new Runnable() {
 				public void run() {

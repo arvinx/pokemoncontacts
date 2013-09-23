@@ -3,6 +3,7 @@ package com.pokemoncontacts;
 public class Constants {
 	
 	static String FIRST_RUN_KEY = "pokemon_contacts_first_run";
+	static String RECIEVED_FIRST_WARNING = "pokemon_contacts_first_warn";
 
 	static String SELECTED_GENERATIONS = "SELECTED_GENERATIONS";
 	static String IS_PERSONAL_PROFILE = "isPersonalProfile";
